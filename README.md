@@ -25,10 +25,11 @@ The material includes the numerical codes for the model, the experimental data u
 - 'figEW': provides extra codes for graphic purposes
 
 # Instructions
-1. Copy and paste the EW_folder into a selected working directory
-2. Run the Juptyer notebook 'Example' as a verification benchmark. The notebook uses the Python codes of the EW model.
-3. Change the parameters in the file 'Example' to run specific simulations for different scenarios.
-4. For the Jupyter notebooks of the model-experiment comparison, define the selected base directory in the first cell of each notebook.
+1. Download the whole folder as a zip file.
+2. Unzip into a selected working directory
+3. Run the Juptyer notebook 'Example' to verify that the model (pyEW) is correctly used within the notebooks.
+4. Change the parameters in the file 'Example' to run specific simulations for different scenarios.
+5. For the Jupyter notebooks of the model-experiment comparison, define the selected base directory in the first cell of each notebook.
 
 # Contact
 You can contact me at @MatteoBertagni (matteobb@princeton.edu) for more information about the research.
