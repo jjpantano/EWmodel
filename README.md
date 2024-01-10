@@ -1,4 +1,4 @@
-# EWmodel
+# EW model
 This folder contains all material related to the enhanced weathering (EW) model published in Bertagni et al.
 The material includes the numerical codes for the model, the experimental data used for the analyses, and the Jupyter notebooks for the model-experiment comparison.
 
