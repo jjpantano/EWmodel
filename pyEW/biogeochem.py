@@ -413,26 +413,33 @@ def biogeochem_balance(n, s, L, T, I, v, k_v, RAI, root_d, Zr, r_het, r_aut, D, 
                 rock_f[:,i] = M_min[:,i]/M_rock[i] 
             
                 #diameter class variation
-                d_shrink = np.sum(Wr[:,i-1]*MM_min[:]/rho_rock) #[m/d]
+                d_shrink = np.sum(rock_f[:,i-1]*Wr[:,i-1]*MM_min[:]/rho_rock)*dt # [m]
+                d[:,i] = d[:,i-1] - 2*d_shrink*lamb[:,i-1] # [m]
+                d[:,i][d[:,i] < 0] = 0
+                delta_d[:,i] = np.insert(np.diff(d[:,i]),0,d[0,i]) # [m]
+                
+                 #d-derived quantities
                 for k in range(0, n_d_cl):
-                    d[k,i] = d[k,i-1] - 2*d_shrink*lamb[k,i-1]*dt
-                    if d[k,i]<0:
-                        d[k,i] = 0
-                    elif d[k,i]>0:
+                    if d[k,i]>0:
                         lamb[k,i] = a*d[k,i]**b #[-]
                         SSA[k,i] = 6/(d[k,i]*rho_rock)*lamb[k,i] # [m2/g]
-                        psd[k,i] = psd[k,0]*(d[k,i]/d[k,0])**3*(lamb[k,0]/lamb[k,i]) # [g/m]
-                delta_d[:,i] = np.insert(np.diff(d[:,i]),0,d[0,i])
-                SA[i] = np.sum(SSA[:,i]*psd[:,i]*delta_d[:,i]) # [m2]
-
+                        psd[k,i] = psd[k,i-1]*(d[k,i]/d[k,i-1])**3*(delta_d[k,i-1]/delta_d[k,i]) # [g/m]
+                            
                 #mineral weathering
                 for j in range(0, number_min):
-                    if M_min[j,i] >= 0.1: # minimum solvable [g]
+                    if M_min[j,i-1] != 0:
                         Omega[j,i] = pyEW.Omega_sil(mineral[j], Ca[i], Mg[i], Na[i], Si[i], H[i], K_sp[j], conv_mol) #[-]
                         Wr[j,i] = s[i]*diss_f*(k_diss_H_t[j,i]*(H[i]/conv_mol)**n_H[j]+k_diss_w_t[j,i]+k_diss_OH_t[j,i]*(H[i]/conv_mol)**n_OH[j])*(1-Omega[j,i]) # [mol/ m2 d]
-                        EW[j,i] = Wr[j,i]*SA[i]*rock_f[j,i] # [mol/d]
-                    else:
-                        M_min[j,i] = 0
+                        M_min[j,i] = M_min[j,i-1]-EW[j,i-1]*MM_min[j]*dt # [g]
+                        if M_min[j,i] < 0:
+                            M_min[j,i] = 0
+                
+                #global quantities
+                SA[i] = np.sum(SSA[:,i]*psd[:,i]*delta_d[:,i]) # [m2]
+                M_rock[i] = np.sum(M_min[:,i]) + M_iner # [g]
+                rock_f[:,i] = M_min[:,i]/M_rock[i] # [-]
+                EW[:,i] = Wr[:,i]*SA[i]*rock_f[:,i] # [mol/d]
+                
 
     data = {k: v for k, v in locals().items()}
                                
